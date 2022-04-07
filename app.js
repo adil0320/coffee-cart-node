@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 const app = express();
 
@@ -20,6 +20,14 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/users', userRoutes);
+
+app.use((error, req, res, next) => {
+  if (res.headerSent) {
+    return next(error);
+  }
+  res.status(error.code || 500);
+  res.send({ error: error.message || 'An unknown error occured!' });
+});
 
 mongoose
   .connect(process.env.DB_URL)
